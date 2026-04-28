@@ -13,7 +13,7 @@ const logger = new PinoLogger(config.getLoggerOptions());
 async function main() {
   const idx = new Indexer(
     config,
-    new EthersEthClient(config.getRpcUrl()),
+    new EthersEthClient(config.getRpcUrl(), config.getLatestBlockStrategy()),
     new SqliteDatabase(config.getDbPath()),
     logger,
     async (db) => {

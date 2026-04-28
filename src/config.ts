@@ -1,5 +1,6 @@
 import path from 'path';
 import { LoggerOptions } from './interfaces/logger';
+import { BlockNumberType } from './common/data';
 
 function envInt(key: string, defaultValue: number): number {
   const val = Number(process.env[key]);
@@ -14,6 +15,7 @@ export class Config {
   private readonly pullBlockIntervalMs: number;
   private readonly pullBlocksLoopIntervalMs: number;
   private readonly pullLogsIntervalMs: number;
+  private readonly latestBlockStrategy: BlockNumberType;
   private readonly dbPath: string;
   private readonly addresses: string[];
   private readonly topics: (string | string[])[] | undefined;
@@ -32,6 +34,7 @@ export class Config {
     pullBlockIntervalMs: number;
     pullBlocksLoopIntervalMs: number;
     pullLogsIntervalMs: number;
+    latestBlockStrategy?: BlockNumberType;
     dbPath: string;
     addresses: string[];
     topics: (string | string[])[] | undefined;
@@ -71,6 +74,7 @@ export class Config {
         logFileSize: process.env.LOG_FILE_SIZE || undefined,
         logFileFrequency: (process.env.LOG_FILE_FREQUENCY as 'daily' | 'hourly') || undefined,
         logFileMaxFiles: envInt('LOG_FILE_MAX_FILES', 0),
+        latestBlockStrategy: process.env.LATEST_BLOCK_STRATEGY as unknown as BlockNumberType,
       };
     }
 
@@ -94,6 +98,7 @@ export class Config {
     this.logFileSize = params.logFileSize;
     this.logFileFrequency = params.logFileFrequency;
     this.logFileMaxFiles = params.logFileMaxFiles ?? 0;
+    this.latestBlockStrategy = params.latestBlockStrategy ?? BlockNumberType.Latest;
   }
 
   getRpcUrl() { return this.rpcUrl; }
@@ -118,4 +123,5 @@ export class Config {
       fileMaxFiles: this.logFileMaxFiles,
     };
   }
+  getLatestBlockStrategy() { return this.latestBlockStrategy; }
 }

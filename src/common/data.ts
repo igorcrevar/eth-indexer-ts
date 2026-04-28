@@ -21,3 +21,9 @@ export type ReceiptLog = {
   data: string;
   logIndex: number;
 };
+
+export enum BlockNumberType {
+  Safe = 'safe',
+  Finalized = 'finalized',
+  Latest = 'latest',
+}

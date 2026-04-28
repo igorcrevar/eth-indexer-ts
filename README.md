@@ -70,6 +70,7 @@ All options are set via environment variables:
 | `PULL_BLOCK_INTERVAL_MS` | | `3000` | Interval between new-block polls (ms) |
 | `PULL_BLOCKS_LOOP_INTERVAL_MS` | | `250` | Interval between block-processing loop ticks (ms) |
 | `PULL_LOGS_INTERVAL_MS` | | `4000` | Interval between log-fetching polls (ms) |
+| `LATEST_BLOCK_STRATEGY` | | `latest` | Strategy for determining the latest block: `latest` (default), `safe`, or `finalized` (if supported by your RPC provider). |
 | `DB_PATH` | | `./indexer.db` | SQLite database file path |
 | `LOG_LEVEL` | | `info` | Pino log level: `trace` \| `debug` \| `info` \| `warn` \| `error` \| `fatal` |
 | `LOG_PRETTY` | | `false` | `true` for human-readable output, `false` for JSON |
