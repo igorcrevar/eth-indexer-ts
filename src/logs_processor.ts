@@ -33,9 +33,9 @@ export class LogsProcessor {
         this.config.getAddresses(), blockNum, batchTo);
       const dbLogs = logs
         .map((log) => ({
-          blockNumber: blockNum,
+          blockNumber: log.blockNum,
+          txHash: log.txHash,          
           address: log.address,
-          logIndex: isNaN(log.logIndex) ? -1 : log.logIndex,
           topics: log.topics,
           data: log.data,
         } as LogEvent))

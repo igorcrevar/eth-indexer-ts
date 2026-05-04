@@ -2,6 +2,7 @@ import { JsonRpcProvider } from 'ethers';
 import { Block as EthersBlock } from 'ethers';
 import { Block, BlockNumberType, ReceiptLog } from './common/data';
 import { IEthClient } from './interfaces/ethClient';
+import { Log } from 'ethers';
 
 export class EthersEthClient implements IEthClient {
   private readonly provider: JsonRpcProvider;
@@ -34,11 +35,13 @@ export class EthersEthClient implements IEthClient {
       fromBlock,
       toBlock
     });
-    return logs.map((l: any) => ({
+    return logs.map((l: Log) => ({
       address: l.address,
       topics: Array.isArray(l.topics) ? l.topics.map(String) : [],
       data: l.data,
-      logIndex: typeof l.logIndex === 'number' ? l.logIndex : Number(l.logIndex)
+      txIndex: l.transactionIndex,
+      txHash: l.transactionHash,
+      blockNum: l.blockNumber,
     }));
   }
 }

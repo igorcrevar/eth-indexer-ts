@@ -36,7 +36,7 @@ export class SqliteDatabase implements IDatabase {
       CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         block_number INTEGER NOT NULL,
-        log_index INTEGER NOT NULL,
+        tx_hash STRING NOT NULL,
         address TEXT NOT NULL,
         topics TEXT NOT NULL,
         data TEXT NOT NULL
@@ -46,10 +46,10 @@ export class SqliteDatabase implements IDatabase {
     const setLastProcessedBlockStmt = this.db.prepare(
       'INSERT OR REPLACE INTO last_processed_block(id, number) VALUES(1, ?)');
     const insertEventStmt = this.db.prepare(
-      'INSERT OR IGNORE INTO events(block_number, log_index, address, topics, data) VALUES (?,?,?,?,?)');
+      'INSERT OR IGNORE INTO events(block_number, tx_hash, address, topics, data) VALUES (?,?,?,?,?)');
     this.txInsertEventsAndSetLastProcessedBlock = this.db.transaction((events: LogEvent[], blockNumber: number) => {
       for (const e of events) {
-        insertEventStmt.run(e.blockNumber, e.logIndex, e.address, e.topics.join(','), e.data);
+        insertEventStmt.run(e.blockNumber, e.txHash, e.address, e.topics.join(','), e.data);
       }
 
       setLastProcessedBlockStmt.run(blockNumber);
@@ -127,7 +127,7 @@ export class SqliteDatabase implements IDatabase {
     return {
       id: row.id,
       blockNumber: row.block_number,
-      logIndex: row.log_index,
+      txHash: row.tx_hash,
       address: row.address,
       topics: row.topics.split(','),
       data: row.data,

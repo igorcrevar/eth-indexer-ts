@@ -19,8 +19,8 @@ function makeBlock(number: number): Block {
   return { number, hash: `hash${number}`, parentHash: `hash${number - 1}`, timestamp: 0, txHashes: [] };
 }
 
-function makeReceiptLog(address: string, topic0: string, logIndex = 0): ReceiptLog {
-  return { address, topics: [topic0], data: '0x', logIndex };
+function makeReceiptLog(address: string, topic0: string, txHash = '0xff', blockNum = 1): ReceiptLog {
+  return { address, topics: [topic0], data: '0x', txHash, blockNum };
 }
 
 function makeConfig(overrides?: {
@@ -109,14 +109,14 @@ describe('LogsProcessor', () => {
     db.insertBlock(makeBlock(1));
     db.insertBlock(makeBlock(2));
     client.getLogs = vi.fn(() =>
-      Promise.resolve([makeReceiptLog('0xAAA', '0xTOPIC1', 0)])
+      Promise.resolve([makeReceiptLog('0xAAA', '0xTOPIC1', '0xffcc', 10)])
     );
     const processor = new LogsProcessor(makeConfig({ maxBatchSize: 10 }), db as any, client, noopLogger);
     const result = await processor.process();
     expect(result).toHaveLength(1);
     expect(result![0].address).toBe('0xAAA'); // stored as-is from ReceiptLog, not lowercased
-    expect(result![0].logIndex).toBe(0);
-    expect(result![0].blockNumber).toBe(1); // blockNum at batch start
+    expect(result![0].txHash).toBe('0xffcc');
+    expect(result![0].blockNumber).toBe(10);
   });
 
   it('calls getLogs with correct address array, fromBlock and toBlock', async () => {
@@ -135,18 +135,6 @@ describe('LogsProcessor', () => {
     await processor.process();
     expect(db.getAllEvents()).toHaveLength(1);
     expect(db.getLastProcessedBlock()).toBe(1);
-  });
-
-  // ── NaN logIndex ───────────────────────────────────────────────────────────
-
-  it('converts NaN logIndex to -1', async () => {
-    db.insertBlock(makeBlock(1));
-    client.getLogs = vi.fn(() =>
-      Promise.resolve([makeReceiptLog('0xAAA', '0xTOPIC1', NaN)])
-    );
-    const processor = new LogsProcessor(makeConfig(), db as any, client, noopLogger);
-    const result = await processor.process();
-    expect(result![0].logIndex).toBe(-1);
   });
 
   // ── multi-batch ────────────────────────────────────────────────────────────
